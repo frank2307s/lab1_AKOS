@@ -20,7 +20,7 @@ echo "Working with directory: $LOG_DIR"
 USED=$(df --output=pcent "$LOG_DIR" | tail -1 | tr -d ' %')
 echo "Used: $USED%"
 
-# ДОБАВЛЕНА ПРОВЕРКА -1 ДЛЯ ТЕСТОВ
+
 if [ "$N" -eq "-1" ] || [ "$USED" -gt "$N" ]; then
     echo "Usage $USED% is above threshold $N%, archiving $M oldest files"
 
