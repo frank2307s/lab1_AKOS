@@ -17,10 +17,10 @@ check() {
     local msg=$1
     shift
     if "$@" >/dev/null 2>&1; then
-        echo "  [PASS] $msg"
+        echo "  (Passed) $msg"
         PASS=$((PASS + 1))
     else
-        echo "  [FAIL] $msg"
+        echo "  (Failed) $msg"
         FAIL=$((FAIL + 1))
     fi
 }
@@ -101,7 +101,7 @@ test_custom_args() {
     check "10 files left in folder" test "$(ls -1 "$d/log" | wc -l)" -eq 10
 }
 
-run_test() { echo; echo "== $1"; "$1"; rm -rf "$SANDBOX/$1"*; }
+run_test() { echo; echo " $1"; "$1"; rm -rf "$SANDBOX/$1"*; }
 
 run_test test_below_threshold
 run_test test_above_threshold
