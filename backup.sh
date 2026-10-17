@@ -3,7 +3,7 @@
 LOG_DIR="$1"
 N="${2:-80}"
 M="${3:-5}"
-BACKUP_DIR="Backup"
+BACKUP_DIR="${BACKUP_DIR:-Backup}"
 
 if [ -z "$LOG_DIR" ]; then
     echo "Usage: $0 <path_to_log_directory>"
@@ -15,15 +15,16 @@ if [ ! -d "$LOG_DIR" ]; then
     exit 1
 fi
 
-echo "Working with directoty: $LOG_DIR"
+echo "Working with directory: $LOG_DIR"
 
 USED=$(df --output=pcent "$LOG_DIR" | tail -1 | tr -d ' %')
 echo "Used: $USED%"
 
-if [ "$USED" -gt "$N" ]; then
+
+if [ "$N" -eq "-1" ] || [ "$USED" -gt "$N" ]; then
     echo "Usage $USED% is above threshold $N%, archiving $M oldest files"
 
-    FILES=$(find "$LOG_DIR" -maxdepth 1 -type f -printf '%T@ %f\n' | sort -n | head -n "$M" | cut -d' ' -f2-)
+    FILES=$(find "$LOG_DIR" -maxdepth 1 -type f -printf '%Ts %f\n' | sort -n | head -n "$M" | cut -d' ' -f2-)
 
     if [ -z "$FILES" ]; then
         echo "No files to archive"
