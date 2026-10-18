@@ -75,6 +75,11 @@ test_oldest_first() {
     check "app 07 in archive" bash -c "tar -tzf '$arch' | grep -q 'app 07.log'"
     check "app 02 in archive" bash -c "tar -tzf '$arch' | grep -q 'app 02.log'"
     check "app 09 in archive" bash -c "tar -tzf '$arch' | grep -q 'app 09.log'"
+    
+    check "app 07 removed" test ! -e "$d/log/app 07.log"
+    check "app 02 removed" test ! -e "$d/log/app 02.log"
+    check "app 09 removed" test ! -e "$d/log/app 09.log"
+    
     check "app 01 NOT deleted" test -f "$d/log/app 01.log"
 }
 
@@ -101,6 +106,21 @@ test_custom_args() {
     check "10 files left in folder" test "$(ls -1 "$d/log" | wc -l)" -eq 10
 }
 
+test_edge_cases() {
+    local d="$SANDBOX/t6"
+    mkdir -p "$d/log/sub" "$d/bak"
+
+    run_backup "" "$d/bak" 80 3
+    check "no path: exit 1" test "$RC" -eq 1
+
+    run_backup "$d/nope" "$d/bak" 80 3
+    check "missing dir: exit 1" test "$RC" -eq 1
+
+    run_backup "$d/log" "$d/bak" -1 3
+    check "only a subfolder: exit 0" test "$RC" -eq 0
+    check "subfolder not archived" test -z "$(ls -A "$d/bak")"
+}
+
 run_test() { echo; echo " $1"; "$1"; rm -rf "$SANDBOX/$1"*; }
 
 run_test test_below_threshold
@@ -108,6 +128,9 @@ run_test test_above_threshold
 run_test test_oldest_first
 run_test test_archive_failure
 run_test test_custom_args
+
+run_test test_edge_cases
+
 
 echo "Total: passed $PASS, failed $FAIL"
 exit $((FAIL > 0))
